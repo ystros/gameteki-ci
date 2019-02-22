@@ -6,5 +6,6 @@ pushd throneteki-client
   npm ci
   npm run build-vendor
   npm run build
-  cp -r out/ ../throneteki-client-artifact
 popd
+
+tar -czvf throneteki-client-artifact/build.tar.gz -C throneteki-client/dist/ .
