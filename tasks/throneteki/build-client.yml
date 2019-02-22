@@ -1,0 +1,12 @@
+---
+platform: linux
+
+inputs:
+  - name: ci
+  - name: throneteki-client
+
+outputs:
+  - name: throneteki-client-artifact
+
+run:
+  path: ci/tasks/throneteki/build-client
