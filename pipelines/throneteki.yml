@@ -1,0 +1,96 @@
+---
+resources:
+- name: node-image
+  type: docker-image
+  source:
+    repository: node
+- name: ci
+  type: git
+  source:
+    uri: https://github.com/ystros/gameteki-ci.git
+    branch: master
+- name: throneteki-server
+  type: git
+  source:
+    uri: https://github.com/throneteki/throneteki.git
+    branch: master
+- name: throneteki-client
+  type: git
+  source:
+    uri: https://github.com/throneteki/throneteki-client.git
+    branch: master
+- name: throneteki-json-data
+  type: git
+  source:
+    uri: https://github.com/throneteki/throneteki-json-data.git
+    branch: master
+
+groups:
+- name: throneteki
+  jobs:
+  - run-server-tests
+  - run-client-tests
+  - run-json-data-tests
+  - pre-build-fan-in
+  - build-client
+
+jobs:
+- name: run-server-tests
+  serial: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: node-source
+      resource: throneteki-server
+      trigger: true
+  - task: run-server-tests
+    image: node-image
+    file: ci/tasks/shared/run-npm-test.yml
+- name: run-client-tests
+  serial: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: node-source
+      resource: throneteki-client
+      trigger: true
+  - task: run-client-tests
+    image: node-image
+    file: ci/tasks/shared/run-npm-test.yml
+- name: run-json-data-tests
+  serial: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: node-source
+      resource: throneteki-json-data
+      trigger: true
+  - task: run-json-data-tests
+    image: node-image
+    file: ci/tasks/shared/run-npm-test.yml
+- name: pre-build-fan-in
+  plan:
+  - get: throneteki-server
+    trigger: true
+    passed: [run-server-tests]
+  - get: throneteki-client
+    trigger: true
+    passed: [run-client-tests]
+  - get: throneteki-json-data
+    trigger: true
+    passed: [run-json-data-tests]
+- name: build-client
+  serial: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: throneteki-client
+      passed: [pre-build-fan-in]
+      trigger: true
+  - task: build-client
+    image: node-image
+    file: ci/tasks/throneteki/build-client.yml
