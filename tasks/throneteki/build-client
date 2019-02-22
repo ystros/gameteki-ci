@@ -4,7 +4,7 @@ set -ex
 
 pushd throneteki-client
   npm ci
-  npm build-vendor
-  npm build
+  npm run build-vendor
+  npm run build
   cp -r out/ ../throneteki-client-artifact
 popd
