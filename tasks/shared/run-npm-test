@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -ex
+
+pushd node-source
+  npm install
+  npm test
+popd

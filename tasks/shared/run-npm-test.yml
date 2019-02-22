@@ -1,0 +1,9 @@
+---
+platform: linux
+
+inputs:
+  - name: ci
+  - name: node-source
+
+run:
+  path: ci/tasks/shared/run-npm-test
