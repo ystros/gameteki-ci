@@ -1,4 +1,10 @@
 ---
+resource_types:
+- name: pull-request
+  type: docker-image
+  source:
+    repository: teliaoss/github-pr-resource
+
 resources:
 - name: node-image
   type: docker-image
@@ -24,6 +30,24 @@ resources:
   source:
     uri: https://github.com/throneteki/throneteki-json-data.git
     branch: master
+- name: throneteki-server-prs
+  type: pull-request
+  check_every: 1m
+  source:
+    repository: throneteki/throneteki
+    access_token: ((throneteki-github-access-token))
+- name: throneteki-client-prs
+  type: pull-request
+  check_every: 1m
+  source:
+    repository: throneteki/throneteki-client
+    access_token: ((throneteki-github-access-token))
+- name: throneteki-json-data-prs
+  type: pull-request
+  check_every: 1m
+  source:
+    repository: throneteki/throneteki-json-data
+    access_token: ((throneteki-github-access-token))
 
 groups:
 - name: throneteki
@@ -33,6 +57,11 @@ groups:
   - run-json-data-tests
   - pre-build-fan-in
   - build-client
+- name: throneteki-prs
+  jobs:
+  - run-server-pr-tests
+  - run-client-pr-tests
+  - run-json-data-pr-tests
 
 jobs:
 - name: run-server-tests
@@ -98,3 +127,84 @@ jobs:
   - task: build-client
     image: node-image
     file: ci/tasks/throneteki/build-client.yml
+- name: run-server-pr-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: node-source
+      resource: throneteki-server-prs
+      version: every
+      trigger: true
+  - put: throneteki-server-prs
+    params:
+      path: node-source
+      status: pending
+  - task: run-npm-tests
+    image: node-image
+    file: ci/tasks/shared/run-npm-test.yml
+    on_failure:
+      put: throneteki-server-prs
+      params:
+        path: node-source
+        status: failure
+  - put: throneteki-server-prs
+    params:
+      path: node-source
+      status: success
+- name: run-client-pr-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: node-source
+      resource: throneteki-client-prs
+      version: every
+      trigger: true
+  - put: throneteki-client-prs
+    params:
+      path: node-source
+      status: pending
+  - task: run-npm-tests
+    image: node-image
+    file: ci/tasks/shared/run-npm-test.yml
+    on_failure:
+      put: throneteki-client-prs
+      params:
+        path: node-source
+        status: failure
+  - put: throneteki-client-prs
+    params:
+      path: node-source
+      status: success
+- name: run-json-data-pr-tests
+  serial: true
+  public: true
+  plan:
+  - aggregate:
+    - get: node-image
+    - get: ci
+    - get: node-source
+      resource: throneteki-json-data-prs
+      version: every
+      trigger: true
+  - put: throneteki-json-data-prs
+    params:
+      path: node-source
+      status: pending
+  - task: run-json-data-tests
+    image: node-image
+    file: ci/tasks/shared/run-npm-test.yml
+    on_failure:
+      put: throneteki-json-data-prs
+      params:
+        path: node-source
+        status: failure
+  - put: throneteki-json-data-prs
+    params:
+      path: node-source
+      status: success
