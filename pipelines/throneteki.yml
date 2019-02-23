@@ -37,6 +37,7 @@ groups:
 jobs:
 - name: run-server-tests
   serial: true
+  public: true
   plan:
   - aggregate:
     - get: node-image
@@ -49,6 +50,7 @@ jobs:
     file: ci/tasks/shared/run-npm-test.yml
 - name: run-client-tests
   serial: true
+  public: true
   plan:
   - aggregate:
     - get: node-image
@@ -61,6 +63,7 @@ jobs:
     file: ci/tasks/shared/run-npm-test.yml
 - name: run-json-data-tests
   serial: true
+  public: true
   plan:
   - aggregate:
     - get: node-image
@@ -84,6 +87,7 @@ jobs:
     passed: [run-json-data-tests]
 - name: build-client
   serial: true
+  public: true
   plan:
   - aggregate:
     - get: node-image
