@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: alpine/git
+    repository: ellerbrock/alpine-bash-git
 
 inputs:
   - name: ci
