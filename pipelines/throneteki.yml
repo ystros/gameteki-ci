@@ -134,15 +134,13 @@ jobs:
   - aggregate:
     - get: node-image
     - get: ci
-    - get: throneteki-server
+    - get: node-source
       resource: throneteki-server-prs
       version: every
       trigger: true
-  - task: fetch-data-submodule
-    file: ci/tasks/throneteki/fetch-data-submodule.yml
   - put: throneteki-server-prs
     params:
-      path: throneteki-server
+      path: node-source
       status: pending
   - task: run-npm-tests
     image: node-image
@@ -150,11 +148,11 @@ jobs:
     on_failure:
       put: throneteki-server-prs
       params:
-        path: throneteki-server
+        path: node-source
         status: failure
   - put: throneteki-server-prs
     params:
-      path: throneteki-server
+      path: node-source
       status: success
 - name: run-client-pr-tests
   serial: true
