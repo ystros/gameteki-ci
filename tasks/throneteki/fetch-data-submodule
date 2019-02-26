@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -ex
+
+pushd throneteki-server
+    git submodule update
+popd
+
+mv throneteki-server/ node-source/

@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image-resource:
+  type: docker-image
+  source: alpine/git
+
+inputs:
+  - name: ci
+  - name: throneteki-server
+
+outputs:
+  - name: node-source
+
+run:
+  path: ci/tasks/throneteki/build-client
