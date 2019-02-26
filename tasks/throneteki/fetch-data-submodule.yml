@@ -14,4 +14,4 @@ outputs:
   - name: node-source
 
 run:
-  path: ci/tasks/throneteki/build-client
+  path: ci/tasks/throneteki/fetch-data-submodule
